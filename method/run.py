@@ -204,8 +204,8 @@ def MCAD(cropLaser, laser, bb, thresh=-1, isCombine=True, isPlot=True):
 			
 		plt.xlim(-8,8)
 		plt.ylim(-5,8)
-		plt.savefig(os.path.join(resPath,'laser_bb_cluster_{}_{}.svg'.format(trial,gamma_f)))
-		plt.savefig(os.path.join(resPath,'laser_bb_cluster_{}_{}.eps'.format(trial,gamma_f)))
+		plt.savefig(os.path.join(resPath,'laser_bb_cluster_{}_{}.svg'.format(trial,thresh_f)))
+		plt.savefig(os.path.join(resPath,'laser_bb_cluster_{}_{}.eps'.format(trial,thresh_f)))
 	#---------------------------------
 
 	return predict,status
