@@ -33,6 +33,7 @@ def gaussProb(x,z,sigma=1.0):
 #------------------------------------
 
 #------------------------------------
+# 外れ値除去平均距離法
 def outlierAvgPredict(cropLaser,ratio=0.2):
 	status = []
 	
@@ -48,6 +49,7 @@ def outlierAvgPredict(cropLaser,ratio=0.2):
 #------------------------------------
 
 #------------------------------------
+# 平均距離法
 def avgPredict(cropLaser):
 	status = []
 	predict = np.mean(cropLaser)
@@ -55,6 +57,7 @@ def avgPredict(cropLaser):
 #------------------------------------
 
 #------------------------------------
+# 最小距離法
 def nearestPredict(cropLaser):
 	status = []
 	predict = np.min(cropLaser)
@@ -62,7 +65,8 @@ def nearestPredict(cropLaser):
 #------------------------------------
 
 #------------------------------------
-def confClusteringPredict(cropLaser, laser, bb, gamma=-1, isCombine=True, isPlot=True):
+# Max Cluster Avg Distance method
+def MCAD(cropLaser, laser, bb, thresh=-1, isCombine=True, isPlot=True):
 
 	#-------------
 	# 初期化
@@ -86,12 +90,12 @@ def confClusteringPredict(cropLaser, laser, bb, gamma=-1, isCombine=True, isPlot
 	# 各試行に対する処理
 	
 	# 類似度の閾値を決定する
-	gamma_f = gamma
-	if gamma < 0:
+	thresh_f = thresh
+	if thresh < 0:
 		dists = cropLaser[1].values
 		diffs = np.abs(dists[:-1]-dists[1:])
 		mins = np.sin(0.5/180*np.pi)
-		gamma = np.median(diffs/mins)
+		thresh = np.median(diffs/mins)
 
 	for point in range(0,len(cropLaser[1])-1):
 
@@ -109,7 +113,7 @@ def confClusteringPredict(cropLaser, laser, bb, gamma=-1, isCombine=True, isPlot
 		dist  = math.sqrt(dist1**2+dist2**2-(2*dist1*dist2*np.cos(theta))) # 現在と次の点の弦の長さ（余弦定理）
 		
 		# 現在の点の方が遠い場合
-		if dist/base1 < gamma:					# もし現在と次の点が近ければ
+		if dist/base1 < thresh:					# もし現在と次の点が近ければ
 			if isCombine:
 				cntWeightNew += weights[point]		# クラスタ内のデータ数をインクリメント
 			else:
@@ -208,9 +212,9 @@ def confClusteringPredict(cropLaser, laser, bb, gamma=-1, isCombine=True, isPlot
 #------------------------------------
 
 #################################################
-methodID = 4
+methodID = 1
 
-methods = ['cluster', 'proposed','nearest','average','outlier_remove']
+methods = ['MCAD', 'BWMCAD','nearest','average','outlier_remove']
 
 # ファイルパス
 statePaths = ['near/o/left/','near/o/center/','near/o/right/','far/o/left/','far/o/center/','far/o/right/',
@@ -224,8 +228,8 @@ theta = 0.5*np.pi/180
 camTheta = 93.2
 
 # 倍率
-#gammas = [1.4, 1.5, 2 , 3, 4, 5]
-gammas = [0]
+threshs = [1.4, 1.5, 2 , 3, 4, 5]
+#threshs = [0]
 
 # データ数
 nData = 30
@@ -233,7 +237,7 @@ nData = 30
 # plotするか否か
 isPlot = True
 
-for gamma in gammas:
+for thresh in threshs:
 	# 予測距離
 	predictImg = []
 	predictCmb = []
@@ -285,10 +289,10 @@ for gamma in gammas:
 			#-------------
 			# 距離推定
 			if methodID==0:
-				predict, status = confClusteringPredict(cropLaser, laser, bb, gamma, isCombine=False)
+				predict, status = MCAD(cropLaser, laser, bb, thresh, isCombine=False)
 
 			elif methodID==1:
-				predict, status = confClusteringPredict(cropLaser, laser, bb, gamma, isCombine=True)
+				predict, status = MCAD(cropLaser, laser, bb, thresh, isCombine=True)
 
 			elif methodID==2:
 				predict, status = nearestPredict(cropLaser[1])
@@ -305,7 +309,7 @@ for gamma in gammas:
 
 	#---------------------------------
 	# 結果の出力
-	with open(os.path.join(picklePath,'result_sin_oneside_gamma{}.pkl'.format(gamma)),'wb') as fp:
+	with open(os.path.join(picklePath,'result_thresh{}.pkl'.format(thresh)),'wb') as fp:
 		pickle.dump(predictImg,fp)
 		pickle.dump(predictCmb,fp)
 		pickle.dump(gtDists,fp)
