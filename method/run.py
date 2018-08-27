@@ -10,6 +10,8 @@ import pandas as pd
 import pickle
 import pdb
 
+errorRate = 0.25
+
 # 色をランダムに決定する関数
 def generate_random_color(c):
 	#colorlist = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf']
@@ -84,7 +86,8 @@ def MCAD(cropLaser, laser, bb, thresh=-1, isCombine=True, isPlot=True):
 	# weight
 	laserCropThetas = cropLaser[0].values/540*270-45
 	laserCropPoints = np.vstack([cropLaser[1].values*np.cos(laserCropThetas/180*np.pi),cropLaser[1].values*np.sin(laserCropThetas/180*np.pi)])
-	weights = gaussProb(cPoint, laserCropPoints)
+	#weights = gaussProb(cPoint, laserCropPoints, 1.25)
+	weights = gaussProb(cPoint, laserCropPoints, bb[4].values[0]*errorRate)
 	
 	#---------------------------------
 	# 各試行に対する処理
@@ -154,7 +157,7 @@ def MCAD(cropLaser, laser, bb, thresh=-1, isCombine=True, isPlot=True):
 		X.resize(X.size)
 		Z.resize(Z.size)
 		points = np.vstack([X,Z])
-		Y = gaussProb(cPoint, points)
+		Y = gaussProb(cPoint, points, bb[4].values[0]*errorRate)
 
 		X.resize((width, height))
 		Z.resize((width, height))

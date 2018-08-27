@@ -3,15 +3,15 @@ import numpy as np
 import os
 import pdb
 
-methodID = 3
+methodID = 1
 isHalf = 2
 
 methods = ['cluster', 'proposed','nearest','average','outlier_remove']
 picklePath='../results/' + methods[methodID]
 
 # 倍率
-#gammas = [1.5, 2]
-gammas = [0]
+gammas = [1.5, 2]
+#gammas = [0]
 
 
 for gamma in gammas:
@@ -25,6 +25,7 @@ for gamma in gammas:
 	predictCmb = np.array(predictCmb)
 	gtDists = np.array(gtDists)
 
+	pdb.set_trace()
 	# 遮蔽ぶつあり、なし
 	if isHalf > 0:
 		halfInd = int(len(predictImg)/2)
@@ -42,12 +43,10 @@ for gamma in gammas:
 	inds2 = np.where(gtDists==2)[0]
 	inds5 = np.where(gtDists==5)[0]
 
-	'''
 	errorsImg = np.abs(predictImg - gtDists)
 	print("img error:{}, std:{} at 2m".format(np.mean(errorsImg[inds2]),np.std(errorsImg[inds2])))
 	print("img error:{}, std:{} at 5m".format(np.mean(errorsImg[inds5]),np.std(errorsImg[inds5])))
 	print("img error:{}, std:{} All".format(np.mean(errorsImg),np.std(errorsImg)))
-	'''
 	
 	print("-----------")
 
